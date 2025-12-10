@@ -1,0 +1,30 @@
+services:
+  # Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: yarn_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: yarndb
+      MYSQL_USER: yarnuser
+      MYSQL_PASSWORD: yarnpass
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Application Service (Optional - for running full stack in Docker)
+  app:
+    build: .
+    container_name: yarn_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      # Override localhost with the container name 'mysql' when running inside Docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/yarndb?allowPublicKeyRetrieval=true&useSSL=false
+
+volumes:
+  mysql_data:
