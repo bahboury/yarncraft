@@ -10,6 +10,8 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+// ... imports ...
+
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -17,16 +19,21 @@ public class AdminController {
 
     private final UserService userService;
 
-    // Get all PENDING applications
     @GetMapping("/applications")
     public ResponseEntity<List<VendorApplication>> getPendingApplications() {
         return ResponseEntity.ok(userService.getAllPendingApplications());
     }
 
-    // Approve a specific application
     @PostMapping("/applications/{id}/approve")
     public ResponseEntity<String> approveVendor(@PathVariable Long id) {
         userService.approveVendor(id);
         return ResponseEntity.ok("Vendor approved successfully.");
+    }
+
+    // --- NEW ENDPOINT ---
+    @PostMapping("/applications/{id}/reject")
+    public ResponseEntity<String> rejectVendor(@PathVariable Long id) {
+        userService.rejectVendor(id);
+        return ResponseEntity.ok("Vendor application rejected. They can now submit a new one.");
     }
 }
