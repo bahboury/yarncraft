@@ -31,18 +31,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF (used for HTML forms, not needed for REST APIs)
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // 1. PUBLIC ZONE: Allow everyone to access these URLs
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // 1. PUBLIC ZONE: Allow Auth + Swagger Documentation
+                        .requestMatchers(
+                                "/api/auth/**",          // Login/Register
+                                "/v3/api-docs/**",       // Swagger JSON
+                                "/swagger-ui/**",        // Swagger UI HTML
+                                "/swagger-ui.html"       // Swagger Redirect
+                        ).permitAll()
+
                         // 2. PRIVATE ZONE: Everything else requires a valid Token
                         .anyRequest().authenticated()
                 )
-                // 3. Set session management to STATELESS (Server doesn't save user sessions in memory)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 4. Configure the authentication provider
                 .authenticationProvider(authenticationProvider())
-                // 5. Add our custom "Bouncer" (JwtFilter) before the standard username/password check
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
