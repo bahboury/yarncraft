@@ -1,5 +1,6 @@
 package com.swe2project.yarncraft.modules.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swe2project.yarncraft.modules.product.entity.Product;
 
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     @ManyToOne

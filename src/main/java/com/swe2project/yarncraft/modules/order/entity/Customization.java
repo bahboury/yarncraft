@@ -1,5 +1,7 @@
 package com.swe2project.yarncraft.modules.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +22,7 @@ public class Customization {
 
     @ManyToOne
     @JoinColumn(name = "order_item_id")
+    @JsonIgnore
     private OrderItem orderItem;
 
     @Column(name = "attribute_name")
