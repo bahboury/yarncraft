@@ -2,6 +2,7 @@ package com.swe2project.yarncraft.modules.product.repository;
 
 import com.swe2project.yarncraft.modules.product.entity.Category;
 import com.swe2project.yarncraft.modules.product.entity.Product;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

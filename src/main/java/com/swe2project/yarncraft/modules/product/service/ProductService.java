@@ -8,10 +8,12 @@ import com.swe2project.yarncraft.modules.product.repository.ProductRepository;
 import com.swe2project.yarncraft.modules.user.entity.Role;
 import com.swe2project.yarncraft.modules.user.entity.User;
 import com.swe2project.yarncraft.modules.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 
 @Service

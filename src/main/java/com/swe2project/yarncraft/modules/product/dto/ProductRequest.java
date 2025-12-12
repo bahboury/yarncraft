@@ -1,9 +1,10 @@
 package com.swe2project.yarncraft.modules.product.dto;
 
 import com.swe2project.yarncraft.modules.product.entity.Category;
-import lombok.Data;
 
 import java.math.BigDecimal;
+
+import lombok.Data;
 
 @Data
 public class ProductRequest {
