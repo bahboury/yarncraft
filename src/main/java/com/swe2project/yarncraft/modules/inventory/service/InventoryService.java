@@ -513,7 +513,7 @@ public class InventoryService {
     }
 
     /**
-     * Get top selling products
+     * Get top-selling products
      */
     public List<InventoryItem> getTopSellingProducts(User currentUser) {
         log.info("Fetching top selling products");
