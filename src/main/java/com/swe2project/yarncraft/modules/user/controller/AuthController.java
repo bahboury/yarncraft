@@ -1,5 +1,6 @@
 package com.swe2project.yarncraft.modules.user.controller;
 
+import com.swe2project.yarncraft.common.dto.ApiResponse;
 import com.swe2project.yarncraft.modules.user.dto.AuthResponse;
 import com.swe2project.yarncraft.modules.user.dto.LoginRequest;
 import com.swe2project.yarncraft.modules.user.dto.RegisterRequest;
@@ -21,12 +22,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(
+                authService.register(request),
+                "User registered successfully"
+        ));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(
+                authService.login(request),
+                "Login successful"
+        ));
     }
 }

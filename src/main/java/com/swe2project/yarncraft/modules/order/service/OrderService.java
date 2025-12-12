@@ -9,6 +9,7 @@ import com.swe2project.yarncraft.modules.order.entity.OrderItem;
 import com.swe2project.yarncraft.modules.order.repository.OrderRepository;
 import com.swe2project.yarncraft.modules.product.entity.Product;
 import com.swe2project.yarncraft.modules.product.repository.ProductRepository;
+import com.swe2project.yarncraft.modules.user.entity.Role;
 import com.swe2project.yarncraft.modules.user.entity.User;
 import com.swe2project.yarncraft.modules.user.repository.UserRepository;
 
@@ -100,5 +101,31 @@ public class OrderService {
         order.setTotalPrice(totalPrice);
 
         return orderRepository.save(order);
+    }
+
+    // --- READ OPERATIONS ---
+
+    // Get all orders for the logged-in user
+    public List<Order> getUserOrders(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return orderRepository.findByCustomer(user);
+    }
+
+    // Optional: Get a specific order by ID (Ensure they own it!)
+    public Order getOrderById(Long orderId, String userEmail) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Security Check: Users can only see THEIR OWN orders (Admins see all)
+        if (!order.getCustomer().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new RuntimeException("You are not authorized to view this order.");
+        }
+
+        return order;
     }
 }
