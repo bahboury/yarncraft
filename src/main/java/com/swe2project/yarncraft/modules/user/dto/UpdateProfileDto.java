@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String name;
-    private String email;
-    private String password;
-    private String role;
+public class UpdateProfileDto {
+    private String name;           // For all users
+    private String shopName;       // Vendors only
+    private String description;    // Vendors only
 }
