@@ -678,4 +678,32 @@ public class InventoryService {
         private BigDecimal totalInventoryValue;
         private BigDecimal potentialRevenue;
     }
+
+    // ==================== INTEGRATION HELPERS ====================
+
+    /**
+     * Bridge Method: Called by ProductService when a new product is created.
+     * Initializes stock to 0.
+     */
+    @Transactional
+    public void initializeInventory(com.swe2project.yarncraft.modules.product.entity.Product product) {
+        // Check if already exists to be safe
+        if (inventoryRepository.findByProductId(product.getId()).isPresent()) {
+            return;
+        }
+
+        InventoryItem item = InventoryItem.builder()
+                .productId(product.getId())
+                .productName(product.getName()) // ✅ Set Name
+                .vendor(product.getVendor())    // ✅ Set Vendor
+                .stockQuantity(0)
+                .reservedQuantity(0)
+                .soldQuantity(0)
+                .isActive(true)
+                .status(StockStatus.OUT_OF_STOCK)
+                .build();
+
+        inventoryRepository.save(item);
+        log.info("Initialized empty inventory for Product ID: {}", product.getId());
+    }
 }
