@@ -372,12 +372,17 @@ public class InventoryService {
             throw new IllegalStateException("This inventory requires admin approval for restocking");
         }
 
-        // Increase stock
-        inventoryRepository.increaseStock(productId, quantity);
+        // --- THE FIX START ---
+        // OLD: inventoryRepository.increaseStock(productId, quantity);
+        // NEW: Update the Java object directly
+        inventory.setStockQuantity(inventory.getStockQuantity() + quantity);
+        // --- THE FIX END ---
 
         // Update timestamps and audit
         inventory.setLastRestockedAt(LocalDateTime.now());
         inventory.setLastModifiedBy(currentUser);
+
+        // This will now calculate status based on the NEW quantity (e.g. IN_STOCK)
         inventory.updateStockStatus();
 
         InventoryItem updated = inventoryRepository.save(inventory);

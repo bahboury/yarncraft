@@ -1,5 +1,6 @@
 package com.swe2project.yarncraft.modules.inventory.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swe2project.yarncraft.modules.user.entity.Role;
 import com.swe2project.yarncraft.modules.user.entity.User;
 
@@ -74,6 +75,7 @@ public class InventoryItem {
     // Vendor/Owner Information - Integration with User Module
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendor_id", nullable = false)
+    @JsonIgnore
     private User vendor;
 
     @Column(name = "warehouse_location", length = 255)
@@ -101,10 +103,12 @@ public class InventoryItem {
     // Audit Fields - Who made changes
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
+    @JsonIgnore
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "last_modified_by")
+    @JsonIgnore
     private User lastModifiedBy;
 
     // Timestamps
