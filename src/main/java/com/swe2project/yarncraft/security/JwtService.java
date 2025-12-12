@@ -23,7 +23,7 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    // ⚠️ Ideally, store this in application.properties.
+    // ⚠️ Ideally, store this in application.properties.backup.
     // This is a 256-bit Hex key required for HS256 algorithm
     private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
