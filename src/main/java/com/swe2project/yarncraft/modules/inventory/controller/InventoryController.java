@@ -4,8 +4,7 @@ import com.swe2project.yarncraft.modules.inventory.entity.InventoryItem;
 import com.swe2project.yarncraft.modules.inventory.entity.InventoryItem.StockStatus;
 import com.swe2project.yarncraft.modules.inventory.service.InventoryService;
 import com.swe2project.yarncraft.modules.user.entity.User;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,16 +14,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/inventory")
 @RequiredArgsConstructor
 @Slf4j
 public class InventoryController {
-    
+
     private final InventoryService inventoryService;
-    
+
     // ==================== HELPER METHOD ====================
-    
+
     /**
      * Get currently authenticated user from Spring Security context
      */
@@ -35,9 +37,9 @@ public class InventoryController {
         }
         throw new RuntimeException("User not authenticated");
     }
-    
+
     // ==================== CREATE & UPDATE ENDPOINTS ====================
-    
+
     /**
      * Create new inventory item
      * POST /api/inventory
@@ -48,10 +50,10 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to create inventory by user: {}", currentUser.getEmail());
-            
+
             InventoryItem created = inventoryService.createInventory(inventoryItem, currentUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -66,7 +68,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to create inventory"));
         }
     }
-    
+
     /**
      * Update existing inventory item
      * PUT /api/inventory/{id}
@@ -79,10 +81,10 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to update inventory ID: {} by user: {}", id, currentUser.getEmail());
-            
+
             InventoryItem updated = inventoryService.updateInventory(id, inventoryItem, currentUser);
             return ResponseEntity.ok(updated);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -97,9 +99,9 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to update inventory"));
         }
     }
-    
+
     // ==================== READ ENDPOINTS ====================
-    
+
     /**
      * Get all inventory items
      * GET /api/inventory
@@ -110,17 +112,17 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to get all inventory by user: {}", currentUser.getEmail());
-            
+
             List<InventoryItem> items = inventoryService.getAllInventory(currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching inventory: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch inventory"));
         }
     }
-    
+
     /**
      * Get inventory by ID
      * GET /api/inventory/{id}
@@ -130,10 +132,10 @@ public class InventoryController {
     public ResponseEntity<?> getInventoryById(@PathVariable Long id) {
         try {
             log.info("Request to get inventory by ID: {}", id);
-            
+
             InventoryItem item = inventoryService.getInventoryById(id);
             return ResponseEntity.ok(item);
-            
+
         } catch (RuntimeException e) {
             log.error("Inventory not found: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -144,7 +146,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to fetch inventory"));
         }
     }
-    
+
     /**
      * Get inventory by product ID
      * GET /api/inventory/product/{productId}
@@ -154,10 +156,10 @@ public class InventoryController {
     public ResponseEntity<?> getInventoryByProduct(@PathVariable Long productId) {
         try {
             log.info("Request to get inventory for product: {}", productId);
-            
+
             InventoryItem item = inventoryService.getInventoryByProductId(productId);
             return ResponseEntity.ok(item);
-            
+
         } catch (RuntimeException e) {
             log.error("Inventory not found: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -168,7 +170,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to fetch inventory"));
         }
     }
-    
+
     /**
      * Get vendor's inventory
      * GET /api/inventory/vendor/{vendorId}
@@ -178,12 +180,12 @@ public class InventoryController {
     public ResponseEntity<?> getVendorInventory(@PathVariable Long vendorId) {
         try {
             User currentUser = getCurrentUser();
-            log.info("Request to get vendor {} inventory by user: {}", 
-                     vendorId, currentUser.getEmail());
-            
+            log.info("Request to get vendor {} inventory by user: {}",
+                    vendorId, currentUser.getEmail());
+
             List<InventoryItem> items = inventoryService.getVendorInventory(vendorId, currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -194,7 +196,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to fetch vendor inventory"));
         }
     }
-    
+
     /**
      * Get active inventory items
      * GET /api/inventory/active
@@ -204,17 +206,17 @@ public class InventoryController {
     public ResponseEntity<?> getActiveInventory() {
         try {
             log.info("Request to get active inventory");
-            
+
             List<InventoryItem> items = inventoryService.getActiveInventory();
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching active inventory: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch active inventory"));
         }
     }
-    
+
     /**
      * Get inventory by category
      * GET /api/inventory/category/{category}
@@ -224,17 +226,17 @@ public class InventoryController {
     public ResponseEntity<?> getInventoryByCategory(@PathVariable String category) {
         try {
             log.info("Request to get inventory for category: {}", category);
-            
+
             List<InventoryItem> items = inventoryService.getInventoryByCategory(category);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching inventory by category: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch inventory by category"));
         }
     }
-    
+
     /**
      * Search inventory by name
      * GET /api/inventory/search?q=searchTerm
@@ -244,17 +246,17 @@ public class InventoryController {
     public ResponseEntity<?> searchInventory(@RequestParam String q) {
         try {
             log.info("Request to search inventory with term: {}", q);
-            
+
             List<InventoryItem> items = inventoryService.searchInventory(q);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error searching inventory: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to search inventory"));
         }
     }
-    
+
     /**
      * Advanced search with multiple filters
      * GET /api/inventory/search/advanced?name=...&category=...&vendorId=...
@@ -267,13 +269,13 @@ public class InventoryController {
             @RequestParam(required = false) Long vendorId) {
         try {
             User currentUser = getCurrentUser();
-            log.info("Advanced search - Name: {}, Category: {}, VendorId: {}", 
-                     name, category, vendorId);
-            
+            log.info("Advanced search - Name: {}, Category: {}, VendorId: {}",
+                    name, category, vendorId);
+
             List<InventoryItem> items = inventoryService.searchInventoryAdvanced(
                     name, category, vendorId, currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -284,9 +286,9 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to search inventory"));
         }
     }
-    
+
     // ==================== STOCK MANAGEMENT ENDPOINTS ====================
-    
+
     /**
      * Check stock availability
      * GET /api/inventory/check/{productId}?quantity=5
@@ -298,14 +300,14 @@ public class InventoryController {
             @RequestParam Integer quantity) {
         try {
             log.info("Request to check stock for product {} quantity {}", productId, quantity);
-            
+
             boolean hasStock = inventoryService.checkStock(productId, quantity);
             return ResponseEntity.ok(Map.of(
                     "productId", productId,
                     "requestedQuantity", quantity,
                     "available", hasStock
             ));
-            
+
         } catch (IllegalArgumentException e) {
             log.error("Invalid input: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -316,7 +318,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to check stock"));
         }
     }
-    
+
     /**
      * Get available stock quantity
      * GET /api/inventory/available/{productId}
@@ -326,20 +328,20 @@ public class InventoryController {
     public ResponseEntity<?> getAvailableStock(@PathVariable Long productId) {
         try {
             log.info("Request to get available stock for product: {}", productId);
-            
+
             Integer stock = inventoryService.getAvailableStock(productId);
             return ResponseEntity.ok(Map.of(
                     "productId", productId,
                     "availableStock", stock
             ));
-            
+
         } catch (Exception e) {
             log.error("Error getting available stock: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to get available stock"));
         }
     }
-    
+
     /**
      * Reserve stock (for cart)
      * POST /api/inventory/reserve/{productId}?quantity=2
@@ -351,14 +353,14 @@ public class InventoryController {
             @RequestParam Integer quantity) {
         try {
             log.info("Request to reserve {} units for product {}", quantity, productId);
-            
+
             inventoryService.reserveStock(productId, quantity);
             return ResponseEntity.ok(Map.of(
                     "message", "Stock reserved successfully",
                     "productId", productId,
                     "quantity", quantity
             ));
-            
+
         } catch (IllegalArgumentException e) {
             log.error("Invalid input: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -373,7 +375,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to reserve stock"));
         }
     }
-    
+
     /**
      * Release reserved stock (cart item removed)
      * POST /api/inventory/release/{productId}?quantity=2
@@ -385,14 +387,14 @@ public class InventoryController {
             @RequestParam Integer quantity) {
         try {
             log.info("Request to release {} reserved units for product {}", quantity, productId);
-            
+
             inventoryService.releaseReservedStock(productId, quantity);
             return ResponseEntity.ok(Map.of(
                     "message", "Reserved stock released successfully",
                     "productId", productId,
                     "quantity", quantity
             ));
-            
+
         } catch (IllegalArgumentException e) {
             log.error("Invalid input: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -403,7 +405,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to release stock"));
         }
     }
-    
+
     /**
      * Confirm reservation (order completed)
      * POST /api/inventory/confirm/{productId}?quantity=2
@@ -414,16 +416,16 @@ public class InventoryController {
             @PathVariable Long productId,
             @RequestParam Integer quantity) {
         try {
-            log.info("Request to confirm reservation of {} units for product {}", 
-                     quantity, productId);
-            
+            log.info("Request to confirm reservation of {} units for product {}",
+                    quantity, productId);
+
             inventoryService.confirmReservation(productId, quantity);
             return ResponseEntity.ok(Map.of(
                     "message", "Reservation confirmed successfully",
                     "productId", productId,
                     "quantity", quantity
             ));
-            
+
         } catch (IllegalArgumentException e) {
             log.error("Invalid input: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -438,7 +440,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to confirm reservation"));
         }
     }
-    
+
     /**
      * Decrease stock directly
      * POST /api/inventory/decrease/{productId}?quantity=2
@@ -450,14 +452,14 @@ public class InventoryController {
             @RequestParam Integer quantity) {
         try {
             log.info("Request to decrease stock for product {} by {}", productId, quantity);
-            
+
             inventoryService.decreaseStock(productId, quantity);
             return ResponseEntity.ok(Map.of(
                     "message", "Stock decreased successfully",
                     "productId", productId,
                     "quantity", quantity
             ));
-            
+
         } catch (IllegalArgumentException e) {
             log.error("Invalid input: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -472,7 +474,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to decrease stock"));
         }
     }
-    
+
     /**
      * Restock inventory
      * PUT /api/inventory/restock/{productId}?quantity=50
@@ -484,12 +486,12 @@ public class InventoryController {
             @RequestParam Integer quantity) {
         try {
             User currentUser = getCurrentUser();
-            log.info("Request to restock product {} with {} units by user {}", 
-                     productId, quantity, currentUser.getEmail());
-            
+            log.info("Request to restock product {} with {} units by user {}",
+                    productId, quantity, currentUser.getEmail());
+
             InventoryItem updated = inventoryService.restockInventory(productId, quantity, currentUser);
             return ResponseEntity.ok(updated);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -508,7 +510,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to restock inventory"));
         }
     }
-    
+
     /**
      * Manual stock adjustment (admin only)
      * PUT /api/inventory/adjust/{productId}?quantity=100&reason=Inventory%20correction
@@ -522,10 +524,10 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to adjust stock for product {} to {} by admin", productId, quantity);
-            
+
             InventoryItem updated = inventoryService.adjustStock(productId, quantity, reason, currentUser);
             return ResponseEntity.ok(updated);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -540,9 +542,9 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to adjust stock"));
         }
     }
-    
+
     // ==================== MONITORING & ALERTS ENDPOINTS ====================
-    
+
     /**
      * Get low stock items
      * GET /api/inventory/alerts/low-stock
@@ -553,17 +555,17 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to get low stock items by user: {}", currentUser.getEmail());
-            
+
             List<InventoryItem> items = inventoryService.getLowStockItems(currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching low stock items: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch low stock items"));
         }
     }
-    
+
     /**
      * Get out of stock items
      * GET /api/inventory/alerts/out-of-stock
@@ -574,17 +576,17 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to get out of stock items by user: {}", currentUser.getEmail());
-            
+
             List<InventoryItem> items = inventoryService.getOutOfStockItems(currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching out of stock items: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch out of stock items"));
         }
     }
-    
+
     /**
      * Get inventory by status
      * GET /api/inventory/status/{status}
@@ -594,21 +596,21 @@ public class InventoryController {
     public ResponseEntity<?> getInventoryByStatus(@PathVariable StockStatus status) {
         try {
             User currentUser = getCurrentUser();
-            log.info("Request to get inventory with status: {} by user: {}", 
-                     status, currentUser.getEmail());
-            
+            log.info("Request to get inventory with status: {} by user: {}",
+                    status, currentUser.getEmail());
+
             List<InventoryItem> items = inventoryService.getInventoryByStatus(status, currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching inventory by status: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch inventory by status"));
         }
     }
-    
+
     // ==================== ANALYTICS ENDPOINTS ====================
-    
+
     /**
      * Get total inventory value for vendor
      * GET /api/inventory/analytics/value/{vendorId}
@@ -619,13 +621,13 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to get inventory value for vendor: {}", vendorId);
-            
+
             Double value = inventoryService.getTotalInventoryValue(vendorId, currentUser);
             return ResponseEntity.ok(Map.of(
                     "vendorId", vendorId,
                     "totalInventoryValue", value
             ));
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -636,7 +638,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to calculate inventory value"));
         }
     }
-    
+
     /**
      * Get active product count for vendor
      * GET /api/inventory/analytics/count/{vendorId}
@@ -647,13 +649,13 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to count active products for vendor: {}", vendorId);
-            
+
             Long count = inventoryService.countActiveProducts(vendorId, currentUser);
             return ResponseEntity.ok(Map.of(
                     "vendorId", vendorId,
                     "activeProductCount", count
             ));
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -664,7 +666,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to count products"));
         }
     }
-    
+
     /**
      * Get top selling products
      * GET /api/inventory/analytics/top-selling
@@ -675,17 +677,17 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to get top selling products");
-            
+
             List<InventoryItem> items = inventoryService.getTopSellingProducts(currentUser);
             return ResponseEntity.ok(items);
-            
+
         } catch (Exception e) {
             log.error("Error fetching top selling products: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch top selling products"));
         }
     }
-    
+
     /**
      * Get vendor dashboard statistics
      * GET /api/inventory/dashboard/{vendorId}
@@ -696,11 +698,11 @@ public class InventoryController {
         try {
             User currentUser = getCurrentUser();
             log.info("Request to get dashboard for vendor: {}", vendorId);
-            
-            InventoryService.VendorDashboardStats stats = 
+
+            InventoryService.VendorDashboardStats stats =
                     inventoryService.getVendorDashboard(vendorId, currentUser);
             return ResponseEntity.ok(stats);
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -711,9 +713,9 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to generate dashboard"));
         }
     }
-    
+
     // ==================== DELETE ENDPOINTS ====================
-    
+
     /**
      * Deactivate inventory (soft delete)
      * DELETE /api/inventory/{id}
@@ -723,15 +725,15 @@ public class InventoryController {
     public ResponseEntity<?> deactivateInventory(@PathVariable Long id) {
         try {
             User currentUser = getCurrentUser();
-            log.info("Request to deactivate inventory ID: {} by user: {}", 
-                     id, currentUser.getEmail());
-            
+            log.info("Request to deactivate inventory ID: {} by user: {}",
+                    id, currentUser.getEmail());
+
             inventoryService.deactivateInventory(id, currentUser);
             return ResponseEntity.ok(Map.of(
                     "message", "Inventory deactivated successfully",
                     "inventoryId", id
             ));
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -746,7 +748,7 @@ public class InventoryController {
                     .body(Map.of("error", "Failed to deactivate inventory"));
         }
     }
-    
+
     /**
      * Reactivate inventory
      * PUT /api/inventory/{id}/reactivate
@@ -756,61 +758,63 @@ public class InventoryController {
     public ResponseEntity<?> reactivateInventory(@PathVariable Long id) {
         try {
             User currentUser = getCurrentUser();
-            log.info("Request to reactivate inventory ID: {} by user: {}", 
-                     id, currentUser.getEmail());
-            
+            log.info("Request to reactivate inventory ID: {} by user: {}",
+                    id, currentUser.getEmail());
+
             inventoryService.reactivateInventory(id, currentUser);
             return ResponseEntity.ok(Map.of(
                     "message", "Inventory reactivated successfully",
                     "inventoryId", id
             ));
-            
+
         } catch (SecurityException e) {
             log.error("Permission denied: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", e.getMessage()));
-                        } catch (RuntimeException e) {
-        log.error("Inventory not found: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", e.getMessage()));
-    } catch (Exception e) {
-        log.error("Error reactivating inventory: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Failed to reactivate inventory"));
+        } catch (RuntimeException e) {
+            log.error("Inventory not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error reactivating inventory: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to reactivate inventory"));
+        }
+    }
+
+    /**
+     * Permanently delete inventory (hard delete)
+     * DELETE /api/inventory/{id}/permanent
+     * Access: Admin only
+     */
+    @DeleteMapping("/{id}/permanent")
+    public ResponseEntity<?> deleteInventoryPermanently(@PathVariable Long id) {
+        try {
+            User currentUser = getCurrentUser();
+            log.info("Request to permanently delete inventory ID: {} by admin", id);
+
+            inventoryService.deleteInventory(id, currentUser);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Inventory permanently deleted",
+                    "inventoryId", id
+            ));
+
+        } catch (SecurityException e) {
+            log.error("Permission denied: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            log.error("Cannot delete: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            log.error("Inventory not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error deleting inventory: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to delete inventory"));
+        }
     }
 }
-/**
- * Permanently delete inventory (hard delete)
- * DELETE /api/inventory/{id}/permanent
- * Access: Admin only
- */
-@DeleteMapping("/{id}/permanent")
-public ResponseEntity<?> deleteInventoryPermanently(@PathVariable Long id) {
-    try {
-        User currentUser = getCurrentUser();
-        log.info("Request to permanently delete inventory ID: {} by admin", id);
-        
-        inventoryService.deleteInventory(id, currentUser);
-        return ResponseEntity.ok(Map.of(
-                "message", "Inventory permanently deleted",
-                "inventoryId", id
-        ));
-        
-    } catch (SecurityException e) {
-        log.error("Permission denied: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Map.of("error", e.getMessage()));
-    } catch (IllegalStateException e) {
-        log.error("Cannot delete: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", e.getMessage()));
-    } catch (RuntimeException e) {
-        log.error("Inventory not found: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", e.getMessage()));
-    } catch (Exception e) {
-        log.error("Error deleting inventory: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Failed to delete inventory"));
-    }
-}}

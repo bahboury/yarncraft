@@ -9,7 +9,6 @@ import com.swe2project.yarncraft.modules.user.entity.VendorApplication;
 import com.swe2project.yarncraft.modules.user.repository.UserRepository;
 import com.swe2project.yarncraft.modules.user.repository.VendorApplicationRepository;
 
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -27,7 +27,7 @@ public class LoggingAspect {
             long executionTime = System.currentTimeMillis() - start;
 
             // Log success
-            log.info("✅ Executed {}.{}() in {} ms", className, methodName, executionTime);
+            log.info("Executed {}.{}() in {} ms", className, methodName, executionTime);
             return result;
 
         } catch (Throwable ex) {
