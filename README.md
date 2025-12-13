@@ -144,7 +144,7 @@ docker compose up --build
 ## 🧩 Task Division
 
 ### 🟦 Task 1 — Project Setup & Architecture
-Assigned to: Anthony Ashraf
+Assigned to: Anthony Ashraf & Bahy Mohy
 - Project skeleton, Docker setup, DB config, AOP setup, SRS & diagrams.
 
 ### 🟩 Task 2 — User Module
@@ -152,19 +152,19 @@ Assigned to: Bahy Mohy
 - User entity, JWT logic, vendor application flow, admin approval process.
 
 ### 🟧 Task 3 — Product Module
-Assigned to: Team Member 2
+Assigned to: Eslam Ahmed
 - Product CRUD, category filtering, vendor-product linkage.
 
 ### 🟫 Task 4 — Order Module
-Assigned to: Team Member 3
+Assigned to: Seif Ahmed
 - Cart logic, order placement, customization attributes (color, size).
 
 ### 🟨 Task 5 — Inventory Module & AOP
-Assigned to: Team Member 4
+Assigned to: Aser ElSayed
 - Stock deduction logic; AOP aspects for logging and stock checks.
 
 ### 🟪 Task 6 — Frontend (React.js)
-Assigned to: Team Member 5
+Assigned to: Aser ElSayed
 - Customer storefront (browse/order) and vendor dashboard (manage products).
 
 ---
