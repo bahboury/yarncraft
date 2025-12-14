@@ -195,7 +195,7 @@ Assigned to: Seif Emad
 - Cart logic, order placement, customization attributes (color, size).
 
 ### 🟨 Task 5 — Inventory Module & AOP
-Assigned to: Aser ElSayed & Bahy Mohy
+Assigned to: Aser ElSayed
 - Stock deduction logic; AOP aspects for logging and stock checks.
 
 ### 🟪 Task 6 — Frontend (React.js)
