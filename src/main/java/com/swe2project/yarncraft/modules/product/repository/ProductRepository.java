@@ -17,4 +17,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Filter products by category (e.g., for the homepage)
     List<Product> findByCategory(Category category);
 
+    // This magic name tells Spring: "Go to Vendor field, check isApproved, and only return True ones"
+    List<Product> findByVendorIsApprovedTrue();
 }

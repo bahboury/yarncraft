@@ -274,6 +274,25 @@ public class InventoryController {
         ));
     }
 
+    // 👇 ADD THIS METHOD (Convenience for "My Dashboard")
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<InventoryService.VendorDashboardStats>> getMyDashboard(
+            Authentication authentication) {
+
+        // 1. Get Logged-in User
+        User currentUser = getCurrentUser(authentication);
+
+        // 2. Ensure they are a Vendor (or Admin)
+        if (!currentUser.isVendor() && !currentUser.isAdmin()) {
+            throw new RuntimeException("Only vendors can access dashboard stats");
+        }
+
+        // 3. Get Stats using their own ID
+        return ResponseEntity.ok(ApiResponse.success(
+                inventoryService.getVendorDashboard(currentUser.getId(), currentUser),
+                "My dashboard stats generated"
+        ));
+    }
     // ==================== DELETE ENDPOINTS ====================
 
     @DeleteMapping("/{id}")
@@ -304,5 +323,18 @@ public class InventoryController {
         User currentUser = getCurrentUser(authentication);
         inventoryService.deleteInventory(id, currentUser);
         return ResponseEntity.ok(ApiResponse.success("Inventory permanently deleted", "Success"));
+    }
+
+    @GetMapping("/my-inventory")
+    public ResponseEntity<ApiResponse<List<InventoryItem>>> getMyInventory(
+            Authentication authentication) {
+
+        User currentUser = getCurrentUser(authentication);
+
+        // This relies on inventoryService.getVendorInventory(vendorId, currentUser)
+        // which already handles the security check (if the user is the vendor or admin)
+        List<InventoryItem> inventoryItems = inventoryService.getVendorInventory(currentUser.getId(), currentUser);
+
+        return ResponseEntity.ok(ApiResponse.success(inventoryItems, "My inventory list retrieved successfully"));
     }
 }

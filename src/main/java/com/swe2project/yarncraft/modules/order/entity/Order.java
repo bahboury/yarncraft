@@ -4,6 +4,7 @@ import com.swe2project.yarncraft.modules.user.entity.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -12,12 +13,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "orders")
+@Builder
+@Table(name = "orders") // "order" is a reserved SQL keyword, so we use "orders"
 public class Order {
 
     @Id
@@ -25,21 +26,21 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private User customer;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(nullable = false)
-    private BigDecimal totalPrice;
+    private LocalDateTime orderDate;
 
-    @Column(nullable = false)
-    private String status; // PENDING, SHIPPED
+    private BigDecimal totalAmount;
 
-    private String paymentMethod;
+    private String shippingAddress;
+    private String phone;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status; // PENDING, SHIPPED, DELIVERED
 
-    // One Order has Many Items
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItem> items;
+    // One Order has MANY Items
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OrderItem> items = new ArrayList<>();
 }
