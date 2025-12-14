@@ -19,26 +19,61 @@ This project follows a Modular Monolith approach: a single Spring Boot applicati
 
 ```
 yarncraft/
-├── src/main/java/com/swe2project/yarncraft/
-│   ├── modules/
-│   │   ├── user/          (Auth, Admin, Vendor logic)
-│   │   ├── product/       (Catalog, Categories, Images)
-│   │   ├── order/         (Cart, Checkout, Customization)
-│   │   └── inventory/     (Stock management)
-│   ├── config/            (Security, CORS, Swagger)
-│   ├── common/            (Shared DTOs, Exceptions)
-│   └── aspect/            (AOP Aspects)
-│
-├── frontend/
-│   ├── customer-app/      (React.js)
-│   └── vendor-dashboard/  (React.js)
-│
+├── .mvn/wrapper/                       <-- Maven Wrapper
 ├── docker/
-│   └── init.sql           (Auto-creates user & DB seeds)
-│
-├── Dockerfile
-├── compose.yaml
-└── README.md
+│   └── init.sql                        <-- DB Init Script (Users, tables)
+├── src/
+│   ├── main/
+│   │   ├── java/com/swe2project/yarncraft/
+│   │   │   ├── aspect/                 <-- AOP
+│   │   │   │   └── LoggingAspect.java  <-- Execution time logging
+│   │   │   ├── common/                 <-- Shared Resources
+│   │   │   │   ├── dto/                <-- ApiResponse.java (Standard JSON format)
+│   │   │   │   ├── exception/          <-- GlobalExceptionHandler.java
+│   │   │   │   └── util/               <-- SecurityUtils.java
+│   │   │   ├── config/                 <-- System Config
+│   │   │   │   ├── OpenApiConfig.java  <-- Swagger UI Setup
+│   │   │   │   ├── SecurityConfig.java <-- JWT & Role Security
+│   │   │   │   └── WebConfig.java      <-- CORS Settings
+│   │   │   ├── modules/                <-- THE MODULAR MONOLITH CORE
+│   │   │   │   ├── inventory/          <-- [Inventory Module]
+│   │   │   │   │   ├── controller/     <-- InventoryController.java
+│   │   │   │   │   ├── entity/         <-- InventoryItem.java (Stock logic)
+│   │   │   │   │   ├── repository/     <-- InventoryRepository.java
+│   │   │   │   │   └── service/        <-- InventoryService.java (Restock/Reserve)
+│   │   │   │   ├── order/              <-- [Order Module]
+│   │   │   │   │   ├── controller/     <-- OrderController.java
+│   │   │   │   │   ├── dto/            <-- OrderRequest.java
+│   │   │   │   │   ├── entity/         <-- Order.java, OrderItem.java
+│   │   │   │   │   ├── repository/     <-- OrderRepository.java
+│   │   │   │   │   └── service/        <-- OrderService.java (Transaction logic)
+│   │   │   │   ├── product/            <-- [Product Module]
+│   │   │   │   │   ├── controller/     <-- ProductController.java
+│   │   │   │   │   ├── dto/            <-- ProductRequest.java
+│   │   │   │   │   ├── entity/         <-- Product.java, Category.java
+│   │   │   │   │   ├── repository/     <-- ProductRepository.java
+│   │   │   │   │   └── service/        <-- ProductService.java (Calls Inventory)
+│   │   │   │   └── user/               <-- [User Module]
+│   │   │   │       ├── controller/     <-- Auth/Admin/UserController.java
+│   │   │   │       ├── dto/            <-- Login/Register/Profile DTOs
+│   │   │   │       ├── entity/         <-- User.java, Role.java, VendorApplication.java
+│   │   │   │       ├── repository/     <-- UserRepository.java
+│   │   │   │       └── service/        <-- AuthService.java, UserService.java
+│   │   │   ├── security/               <-- JWT Implementation
+│   │   │   │   ├── CustomUserDetailsService.java
+│   │   │   │   ├── JwtAuthenticationFilter.java
+│   │   │   │   └── JwtService.java
+│   │   │   └── YarncraftApplication.java <-- Main Entry Point
+│   │   └── resources/
+│   │       ├── application.properties  <-- Points to Config Server (Port 8888)
+│   │       ├── application.properties.backup <-- Original Config (Safe keeping)
+│   │       └── schema.sql              <-- Database Schema
+│   └── test/                           <-- Tests
+├── compose.yaml                        <-- Docker Compose (MySQL + App)
+├── Dockerfile                          <-- App Container Config
+├── mvnw / mvnw.cmd                     <-- Maven Wrapper
+├── pom.xml                             <-- Dependencies (Spring Cloud Client)
+└── README.md                           <-- Project Documentation
 ```
 
 ---
@@ -144,7 +179,7 @@ docker compose up --build
 ## 🧩 Task Division
 
 ### 🟦 Task 1 — Project Setup & Architecture
-Assigned to: Anthony Ashraf
+Assigned to: Anthony Ashraf & Bahy Mohy
 - Project skeleton, Docker setup, DB config, AOP setup, SRS & diagrams.
 
 ### 🟩 Task 2 — User Module
@@ -152,19 +187,19 @@ Assigned to: Bahy Mohy
 - User entity, JWT logic, vendor application flow, admin approval process.
 
 ### 🟧 Task 3 — Product Module
-Assigned to: Team Member 2
+Assigned to: Eslam Ahmed
 - Product CRUD, category filtering, vendor-product linkage.
 
 ### 🟫 Task 4 — Order Module
-Assigned to: Team Member 3
+Assigned to: Seif Emad
 - Cart logic, order placement, customization attributes (color, size).
 
 ### 🟨 Task 5 — Inventory Module & AOP
-Assigned to: Team Member 4
+Assigned to: Aser ElSayed & Bahy Mohy
 - Stock deduction logic; AOP aspects for logging and stock checks.
 
 ### 🟪 Task 6 — Frontend (React.js)
-Assigned to: Team Member 5
+Assigned to: Aser ElSayed
 - Customer storefront (browse/order) and vendor dashboard (manage products).
 
 ---
@@ -185,13 +220,3 @@ If you want to contribute, please:
 2. Create a feature branch: `git checkout -b feature/my-feature`
 3. Open a pull request against `dev`
 4. Ensure linting and tests (if any) pass
-
----
-
-## License
-
-Add your preferred license (e.g., MIT) here.
-
----
-
-If you'd like, I can commit this README.md directly to a branch for you. Tell me the branch name and commit message you prefer and I will prepare the push.
