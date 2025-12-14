@@ -1,20 +1,33 @@
 services:
-  # Database Service
+  # 1. CONFIG SERVER
+  config-server:
+    build: ../config-server
+    container_name: yarn-config
+    ports:
+      - "8888:8888"
+    networks:
+      - yarn_net
+    develop:
+      watch:
+        - action: rebuild
+          path: ../config-server/src
+
+  # 2. DATABASE
   mysql:
     image: mysql:8.0
     container_name: yarn_mysql
     restart: always
     environment:
-      MYSQL_DATABASE: yarndb
-      MYSQL_USER: yarnuser
-      MYSQL_PASSWORD: yarnpass
+      MYSQL_DATABASE: yarncraft_db
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - yarn_net
 
-  # Application Service (Optional - for running full stack in Docker)
+  # 3. BACKEND API
   app:
     build: .
     container_name: yarn_backend
@@ -22,9 +35,44 @@ services:
       - "8080:8080"
     depends_on:
       - mysql
+      - config-server
+    restart: on-failure
     environment:
-      # Override localhost with the container name 'mysql' when running inside Docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/yarndb?allowPublicKeyRetrieval=true&useSSL=false
+      CONFIG_SERVER_URL: "http://yarn-config:8888/"
+      SPRING_DATASOURCE_URL: jdbc:mysql://yarn_mysql:3306/yarncraft_db?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - yarn_net
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+        - action: rebuild
+          path: ./pom.xml
+
+# 4. FRONTEND
+  frontend:
+    build: ./frontend  # 👈 CHANGED: Points to the folder INSIDE yarncraft
+    container_name: yarn-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - app
+    networks:
+      - yarn_net
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore:
+            - node_modules/
 
 volumes:
   mysql_data:
+
+networks:
+  yarn_net:
+    driver: bridge
