@@ -9,9 +9,21 @@ const VendorAnalytics = () => {
     const [stats, setStats] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // 1. SECURITY CHECK & DATA FETCHING (FIXED)
     useEffect(() => {
-        if (!user || user.role !== 'ADMIN') navigate('/');
+        // Case A: User is logged out
+        if (!user) {
+            navigate('/login');
+            return;
+        }
 
+        // Case B: Not an Admin
+        if (user.role !== 'ADMIN') {
+            navigate('/'); // Just redirect without alert for analytics
+            return;
+        }
+
+        // Case C: Is Admin -> Fetch Data
         const fetchStats = async () => {
             try {
                 const res = await api.get("/admin/vendor-stats");
@@ -23,17 +35,20 @@ const VendorAnalytics = () => {
             }
         };
         fetchStats();
-    }, [user]);
+
+    }, [user, navigate]);
 
     const handleLogout = () => {
         logout();
         navigate("/login");
     };
 
+    if (loading) return <div className="flex h-screen items-center justify-center text-gray-500">Loading Analytics...
+        📊</div>;
+    if (!user || user.role !== 'ADMIN') return null;
+
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row font-sans">
-
-            {/* === SIDEBAR (Same as AdminPanel - You should extract this to a component!) === */}
             <aside className="w-full md:w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col">
                 <div className="p-6 border-b border-gray-100">
                     <h1 className="text-xl font-bold text-gray-800">YarnCraft Admin</h1>
@@ -43,7 +58,6 @@ const VendorAnalytics = () => {
                          className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded cursor-pointer transition">
                         Vendor Applications
                     </div>
-                    {/* 👇 ACTIVE TAB STYLE */}
                     <div
                         className="px-4 py-2 bg-blue-50 text-blue-700 font-semibold rounded cursor-pointer border-l-4 border-blue-600">
                         Vendor Analytics
@@ -57,7 +71,6 @@ const VendorAnalytics = () => {
                 </div>
             </aside>
 
-            {/* === MAIN CONTENT === */}
             <main className="flex-1 p-8 overflow-y-auto">
                 <header className="mb-8">
                     <h2 className="text-3xl font-bold text-gray-800">Vendor Performance</h2>

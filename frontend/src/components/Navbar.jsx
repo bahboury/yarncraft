@@ -11,8 +11,10 @@ const Navbar = () => {
         navigate("/login");
     };
 
-    // Check if the user is a customer or logged out
-    const isCustomerView = !user || user.role === 'CUSTOMER';
+    // 👇 FIXED: Removed "!user" so only logged-in Customers see the link.
+    // This prevents guest users from clicking 'Shop' and crashing the app.
+    const isCustomerView = user && user.role === 'CUSTOMER';
+
     const isVendor = user?.role === 'VENDOR';
     const isAdmin = user?.role === 'ADMIN';
 
@@ -26,7 +28,7 @@ const Navbar = () => {
             {/* Right: Links based on Role */}
             <div className="flex gap-4 items-center">
 
-                {/* Shop Link: Visible to Customers and Logged Out */}
+                {/* Shop Link: Visible ONLY to Logged-in Customers */}
                 {isCustomerView && (
                     <Link to="/" className="hover:text-blue-200 font-medium">Shop</Link>
                 )}
@@ -44,7 +46,6 @@ const Navbar = () => {
                 {/* IF LOGGED IN */}
                 {user ? (
                     <>
-                        {/* 👇 FIXED: Removed the role/type from the greeting */}
                         <span className="font-semibold border-l pl-4 border-blue-400 hidden md:block">
                             Hi, {user.name}
                         </span>

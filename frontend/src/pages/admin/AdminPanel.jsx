@@ -6,23 +6,29 @@ import {useNavigate} from "react-router-dom";
 const AdminPanel = () => {
     const {user, logout} = useContext(AuthContext);
     const navigate = useNavigate();
-    const [applications, setApplications] = useState([]); // Renamed from pendingApplications
+    const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 1. SECURITY CHECK
+    // 1. SECURITY CHECK (FIXED)
     useEffect(() => {
-        if (!user || user.role !== 'ADMIN') {
+        // Case A: User is logged out (e.g., clicked Logout button)
+        if (!user) {
+            navigate('/login');
+            return; // Stop here
+        }
+
+        // Case B: User is logged in but NOT an Admin
+        if (user.role !== 'ADMIN') {
             alert("Access Denied: Admin privileges required.");
             navigate('/');
         }
     }, [user, navigate]);
 
-    // 2. FETCH DATA (Now fetches ALL applications)
+    // 2. FETCH DATA
     const fetchApplications = async () => {
         setLoading(true);
         try {
             const response = await api.get("/admin/applications");
-            // Sort: Pending first, then by date
             const sortedData = (response.data.data || []).sort((a, b) => {
                 if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
                 if (a.status !== 'PENDING' && b.status === 'PENDING') return 1;
@@ -40,6 +46,7 @@ const AdminPanel = () => {
     };
 
     useEffect(() => {
+        // Only fetch if we are sure it's an admin
         if (user && user.role === 'ADMIN') {
             fetchApplications();
         }
@@ -50,7 +57,7 @@ const AdminPanel = () => {
         if (!window.confirm(`Approve this vendor?`)) return;
         try {
             await api.post(`/admin/applications/${applicationId}/approve`);
-            fetchApplications(); // Refresh list
+            fetchApplications();
         } catch (error) {
             alert(`Approval failed: ${error.response?.data?.message}`);
         }
@@ -60,7 +67,7 @@ const AdminPanel = () => {
         if (!window.confirm(`Reject this vendor?`)) return;
         try {
             await api.post(`/admin/applications/${applicationId}/reject`);
-            fetchApplications(); // Refresh list
+            fetchApplications();
         } catch (error) {
             alert(`Rejection failed: ${error.response?.data?.message}`);
         }
@@ -71,7 +78,6 @@ const AdminPanel = () => {
         navigate("/login");
     };
 
-    // Helper for Status Badge Color
     const getStatusColor = (status) => {
         switch (status) {
             case 'APPROVED':
@@ -83,26 +89,22 @@ const AdminPanel = () => {
         }
     };
 
-    if (loading) return <div className="flex h-screen items-center justify-center text-gray-500">Loading Admin Panel...
-        🛡️</div>;
+    // Prevent rendering if not admin (avoids flashing content)
+    if (loading && user?.role === 'ADMIN') return <div
+        className="flex h-screen items-center justify-center text-gray-500">Loading Admin Panel... 🛡️</div>;
     if (!user || user.role !== 'ADMIN') return null;
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row font-sans">
-
-            {/* === SIDEBAR === */}
             <aside className="w-full md:w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col">
                 <div className="p-6 border-b border-gray-100">
                     <h1 className="text-xl font-bold text-gray-800">YarnCraft Admin</h1>
                 </div>
                 <nav className="flex-1 p-4 space-y-2">
-                    {/* Current Page */}
                     <div
                         className="px-4 py-2 bg-blue-50 text-blue-700 font-semibold rounded cursor-pointer border-l-4 border-blue-600">
                         Vendor Applications
                     </div>
-
-                    {/* 👇 Add this Link */}
                     <div onClick={() => navigate('/admin/analytics')}
                          className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded cursor-pointer transition">
                         Vendor Analytics
@@ -116,7 +118,6 @@ const AdminPanel = () => {
                 </div>
             </aside>
 
-            {/* === MAIN CONTENT === */}
             <main className="flex-1 p-8 overflow-y-auto">
                 <header className="mb-8">
                     <h2 className="text-3xl font-bold text-gray-800">Vendor Management</h2>
@@ -142,16 +143,12 @@ const AdminPanel = () => {
                                         <div className="text-sm text-gray-500">{app.user?.email}</div>
                                     </td>
                                     <td className="p-4 text-gray-700">{app.shopName || "N/A"}</td>
-
-                                    {/* STATUS BADGE */}
                                     <td className="p-4">
                                             <span
                                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(app.status)}`}>
                                                 {app.status}
                                             </span>
                                     </td>
-
-                                    {/* ACTIONS (Only show if PENDING) */}
                                     <td className="p-4 text-center">
                                         {app.status === 'PENDING' ? (
                                             <div className="flex justify-center gap-2">
