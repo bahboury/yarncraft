@@ -13,6 +13,8 @@ import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/customer/Cart.jsx";
 import Checkout from "./pages/customer/Checkout.jsx";
 import Orders from "./pages/customer/Orders.jsx";
+import AdminPanel from "./pages/admin/AdminPanel.jsx";
+import VendorAnalytics from "./pages/admin/VendorAnalytics.jsx";
 
 function App() {
     return (
@@ -34,6 +36,9 @@ function App() {
                     <Route path="/cart" element={<Cart/>}/>
                     <Route path="/checkout" element={<Checkout/>}/>
                     <Route path="/orders" element={<Orders/>}/>
+
+                    <Route path="/admin" element={<AdminPanel/>}/>
+                    <Route path="/admin/analytics" element={<VendorAnalytics/>}/>
                 </Routes>
             </div>
         </>

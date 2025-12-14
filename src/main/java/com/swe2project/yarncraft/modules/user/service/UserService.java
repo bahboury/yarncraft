@@ -1,7 +1,10 @@
 package com.swe2project.yarncraft.modules.user.service;
 
+import com.swe2project.yarncraft.modules.order.repository.OrderRepository;
+import com.swe2project.yarncraft.modules.product.repository.ProductRepository;
 import com.swe2project.yarncraft.modules.user.dto.UserProfileDto;
 import com.swe2project.yarncraft.modules.user.dto.VendorApplicationDto;
+import com.swe2project.yarncraft.modules.user.dto.VendorPerformanceDto;
 import com.swe2project.yarncraft.modules.user.entity.ApplicationStatus;
 import com.swe2project.yarncraft.modules.user.entity.Role;
 import com.swe2project.yarncraft.modules.user.entity.User;
@@ -23,6 +26,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final VendorApplicationRepository vendorApplicationRepository;
+
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     // --- 1. Vendor Logic: Submit Application ---
     public void applyAsVendor(String userEmail, VendorApplicationDto dto) {
@@ -148,5 +154,44 @@ public class UserService {
                 vendorApplicationRepository.save(app);
             }
         }
+    }
+
+    public List<VendorApplication> getAllApplications() {
+        // Returns ALL rows (PENDING, APPROVED, REJECTED)
+        return vendorApplicationRepository.findAll();
+    }
+
+    public List<VendorPerformanceDto> getVendorPerformanceStats() {
+        // 1. Get ALL vendors who are APPROVED
+        // (We use findAll and filter, or a custom query. Filtering is fine for now.)
+        List<User> approvedVendors = userRepository.findAll().stream()
+                .filter(u -> u.getRole() == Role.VENDOR && u.isApproved())
+                .toList();
+
+        return approvedVendors.stream().map(vendor -> {
+            Long vendorId = vendor.getId();
+
+            // 2. Count Total Active Products
+            // (Assumes ProductRepository has countByVendorId, or we filter)
+            long productCount = productRepository.countByVendorId(vendorId);
+
+            // 3. Calculate Stats from Orders
+            Double revenue = orderRepository.calculateTotalRevenueForVendor(vendorId);
+            Long sold = orderRepository.calculateTotalItemsSoldForVendor(vendorId);
+
+            // 4. Get Shop Name
+            String shopName = "N/A";
+            var app = vendorApplicationRepository.findByUserId(vendorId);
+            if (app.isPresent()) shopName = app.get().getShopName();
+
+            return VendorPerformanceDto.builder()
+                    .vendorId(vendorId)
+                    .vendorName(vendor.getName())
+                    .shopName(shopName)
+                    .totalProducts(productCount)
+                    .totalRevenue(revenue != null ? revenue : 0.0)
+                    .totalSold(sold != null ? sold : 0L)
+                    .build();
+        }).toList();
     }
 }

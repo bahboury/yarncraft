@@ -19,4 +19,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // This magic name tells Spring: "Go to Vendor field, check isApproved, and only return True ones"
     List<Product> findByVendorIsApprovedTrue();
+
+    long countByVendorId(Long vendorId);
 }
